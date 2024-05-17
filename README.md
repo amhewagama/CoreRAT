@@ -70,6 +70,7 @@ By using CoreRAT, you agree to abide by all relevant laws and regulations. The a
 ## Port mapping
 
 Client port: 80
+
 ![image](https://github.com/amhewagama/CoreRAT/assets/69456605/ab52d83e-1ca0-426f-9b16-29e8ec39c3f6)
 
 Server host: (yourid)-46831.portmap.host (193.161.193.99)
@@ -79,7 +80,7 @@ Server port : 46831
 
 
 ## Potmap.io setup
-Download OpenVPN config
-https://portmap.io/configs/create
-Set Mapping rule
-https://portmap.io/mappings
+- ** Download OpenVPN config **
+- https://portmap.io/configs/create
+- ** Set Mapping rule **
+- https://portmap.io/mappings
