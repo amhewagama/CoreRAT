@@ -1,4 +1,4 @@
-![image](https://github.com/amhewagama/CoreRAT/assets/69456605/99610207-1ff2-473c-961a-e9d62c9a0f72)# CoreRAT
+# CoreRAT
 
 CoreRAT is a remote administration tool (RAT) for Windows, developed using VB.NET 2010. It offers a range of features designed to provide comprehensive remote control and monitoring capabilities.
 
