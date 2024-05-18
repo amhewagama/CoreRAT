@@ -80,7 +80,7 @@ Server port : 46831
 
 
 ## Potmap.io setup
-- ** Download OpenVPN config **
-- https://portmap.io/configs/create
-- ** Set Mapping rule **
-- https://portmap.io/mappings
+- Download OpenVPN config
+  https://portmap.io/configs/create
+- Set Mapping rule
+  https://portmap.io/mappings
