@@ -1,9 +1,58 @@
 # CoreRAT
+## Multi-OS Remote Administration Tool
 
-CoreRAT is a remote administration tool (RAT) for Windows, developed using VB.NET 2010. It offers a range of features designed to provide comprehensive remote control and monitoring capabilities.
+coreRAT is a framework for developing remote administration tools (RATs) that can target various operating systems. It provides a foundation for building server applications in C#, Java, Python, VB.NET, and potentially other languages, along with client applications typically written in VB.NET 2010.
 
-![image](https://github.com/amhewagama/CoreRAT/assets/69456605/1a936633-0e24-4f33-afa6-d4435f024287)
+## Disclaimer
 
+Please note: Remote administration tools can be misused for malicious purposes. The coreRAT framework is intended for legitimate remote management scenarios, such as system administration, IT support, and parental control. It's your responsibility to use this framework ethically and in accordance with all applicable laws.
+
+## Client
+- Coded with VB.net 
+
+![coreRAT](https://github.com/amhewagama/CoreRAT/assets/69456605/06d0502b-0415-4a03-b674-d689016784eb)
+
+
+## Server
+- C#    - 20Kb size
+- VB    - 40Kb size
+- Java   - 10Kb size
+- Python  - 11Kb size
+
+#### C# server
+
+- Compile and run
+- Change the port and IP with compiler
+
+#### VB Server
+
+- Compile from client app
+- Run client build sert IP and port
+
+#### Java Server
+
+- create .Jar or run in console
+- console run
+    ```sh
+    jacac Entrypoin.java
+    java Entrypoint
+    ```
+    ![image](https://github.com/amhewagama/CoreRAT/assets/69456605/fb3bf8af-128d-4a3f-8bea-d7f590a8f549)
+
+#### Python Server
+
+- Console run
+- Create exe
+- requirements
+    ```sh
+    pip install pycryptodome
+    ```
+ - Run server
+   ```sh
+   python server.py
+   ```
+     ![image](https://github.com/amhewagama/CoreRAT/assets/69456605/f8f30e9e-d865-483b-80eb-1cba018b5b57)
+ 
 ## Features
 
 - **Remote Desktop**: View and control the desktop of the remote machine.
@@ -55,9 +104,6 @@ Contributions are welcome! Please follow these steps:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Disclaimer
-
-This tool is intended for legitimate administrative use only. Unauthorized use of this software to access and control systems without permission is illegal and unethical. Use responsibly.
 
 ## Contact
 
@@ -75,8 +121,6 @@ Client port: 80
 
 Server host: (yourid)-46831.portmap.host (193.161.193.99)
 Server port : 46831
-
-![image](https://github.com/amhewagama/CoreRAT/assets/69456605/58c4294a-b449-4600-82f8-3d466cba5a6a)
 
 
 ## Potmap.io setup
