@@ -1,0 +1,8 @@
+E:\VB\coreRAT\TEST\testCoreRATc\testCoreRATc\bin\Debug\testCoreRATc.exe.config
+E:\VB\coreRAT\TEST\testCoreRATc\testCoreRATc\bin\Debug\testCoreRATc.exe
+E:\VB\coreRAT\TEST\testCoreRATc\testCoreRATc\bin\Debug\testCoreRATc.pdb
+E:\VB\coreRAT\TEST\testCoreRATc\testCoreRATc\obj\x86\Debug\testCoreRATc.Properties.Resources.resources
+E:\VB\coreRAT\TEST\testCoreRATc\testCoreRATc\obj\x86\Debug\testCoreRATc.csproj.GenerateResource.Cache
+E:\VB\coreRAT\TEST\testCoreRATc\testCoreRATc\obj\x86\Debug\testCoreRATc.exe
+E:\VB\coreRAT\TEST\testCoreRATc\testCoreRATc\obj\x86\Debug\testCoreRATc.pdb
+E:\VB\coreRAT\TEST\testCoreRATc\testCoreRATc\obj\x86\Debug\testCoreRATc.csprojResolveAssemblyReference.cache
