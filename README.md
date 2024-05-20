@@ -10,12 +10,49 @@ Please note: Remote administration tools can be misused for malicious purposes. 
 ## Client
 - Coded with VB.net 
 
+![coreRAT](https://github.com/amhewagama/CoreRAT/assets/69456605/06d0502b-0415-4a03-b674-d689016784eb)
+
+
 ## Server
 - C#    - 20Kb size
 - VB    - 40Kb size
 - Java   - 10Kb size
 - Python  - 11Kb size
-    
+
+#### C# server
+
+- Compile and run
+- Change the port and IP with compiler
+
+#### VB Server
+
+- Compile from client app
+- Run client build sert IP and port
+
+#### Java Server
+
+- create .Jar or run in console
+- console run
+    ```sh
+    jacac Entrypoin.java
+    java Entrypoint
+    ```
+    ![image](https://github.com/amhewagama/CoreRAT/assets/69456605/fb3bf8af-128d-4a3f-8bea-d7f590a8f549)
+
+#### Python Server
+
+- Console run
+- Create exe
+- requirements
+    ```sh
+    pip install pycryptodome
+    ```
+ - Run server
+   ```sh
+   python server.py
+   ```
+     ![image](https://github.com/amhewagama/CoreRAT/assets/69456605/f8f30e9e-d865-483b-80eb-1cba018b5b57)
+ 
 ## Features
 
 - **Remote Desktop**: View and control the desktop of the remote machine.
