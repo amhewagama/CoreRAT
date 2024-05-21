@@ -14,10 +14,10 @@ Please note: Remote administration tools can be misused for malicious purposes. 
 
 
 ## Server
-- C#    - 20Kb size
-- VB    - 40Kb size
-- Java   - 10Kb size
-- Python  - 11Kb size
+- C# 
+- VB   
+- Java 
+- Python  
 
 #### C# server
 
