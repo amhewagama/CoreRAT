@@ -66,6 +66,77 @@ Please note: Remote administration tools can be misused for malicious purposes. 
 - **Server Options**: Restart or close the server remotely.
 - **Small Server**: The server component is lightweight, with a size of only 40Kb.
 
+### Server Options
+
+<table>
+  <tbody>
+    <tr>
+      <th>Feature</th>
+      <th>VB.NET</th>
+      <th>C#</th>
+      <th>Java</th>
+      <th>Python</th>
+    </tr>
+    <tr>
+      <td>Remote Desktop</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Potentially (through libraries)</td>
+    </tr>
+    <tr>
+      <td>File Manager</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Task Manager</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Installed Software</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>TCP Ports</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td>Startup Manager</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>Server Options</strong></td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+    </tr>
+    <tr>
+      <td><strong>Small Server</strong> (lightweight server deployment)</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>Yes</td>
+      <td>No</td>
+    </tr>
+  </tbody>
+</table>
+
+
 ## Getting Started
 
 ### Prerequisites
