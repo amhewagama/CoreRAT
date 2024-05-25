@@ -16,7 +16,7 @@ Imports Microsoft.Win32
 Imports System.Net.NetworkInformation
 Imports System.Drawing
 
-Namespace Java_JRE_Update_Service
+Namespace coreRAT_server
     Public Class EntryPoint
         Public Shared Sub Main(ByVal args As [String]())
             Dim FrmMain As New Form1
