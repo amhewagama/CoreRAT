@@ -1,6 +1,6 @@
 ### how it work
 compile with 
-- javac EntryPoint.java
+<code>javac EntryPoint.java</code>
 
 run with 
-- java EntryPoint
+<code>java EntryPoint</code>
