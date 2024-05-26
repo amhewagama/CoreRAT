@@ -1,3 +1,3 @@
 ## how it work
 
-Compile and run
+<code>Compile and run</code>
